@@ -4,6 +4,7 @@ import { AppShellContext } from '../context/app-shell-context'
 import { currentYearMonth } from '../lib/dates'
 import { AppSidebar } from './app-sidebar'
 import { AppTopBar } from './app-top-bar'
+import { ApiLocalStorageSync } from './api-local-storage-sync'
 import { MobileBottomNav } from './mobile-bottom-nav'
 import { MaisSheet } from './mais-sheet'
 
@@ -31,6 +32,7 @@ export function AppLayout() {
 
   return (
     <AppShellContext.Provider value={shell}>
+      <ApiLocalStorageSync />
       <div className="min-h-dvh bg-slate-100">
         <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 overflow-hidden border-r border-white/10 shadow-2xl lg:block">
           <AppSidebar />

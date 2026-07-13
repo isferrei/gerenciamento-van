@@ -1,5 +1,6 @@
 import type { AppSettings, DailyEntry } from '../types'
 import { defaultSettings } from '../types'
+import { deleteEntry, fetchEntries, fetchSettings, importEntries, saveEntry, saveSettingsApi } from './api'
 import { migrateRawToDailyEntry } from './migrate-entry'
 
 const ENTRIES_KEY_V2 = 'gerenciamento-van:entries:v2'
@@ -45,26 +46,41 @@ function parseEntries(raw: string | null): DailyEntry[] {
   }
 }
 
+function saveEntriesLocal(entries: DailyEntry[]): void {
+  localStorage.setItem(ENTRIES_KEY_V2, JSON.stringify(entries))
+}
+
+function saveSettingsLocal(s: AppSettings): void {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s))
+}
+
+function reportApiSyncError(error: unknown): void {
+  console.warn('Falha ao sincronizar com a API', error)
+}
+
 export function loadEntries(): DailyEntry[] {
   runMigrationOnce()
   return parseEntries(localStorage.getItem(ENTRIES_KEY_V2))
 }
 
 export function saveEntries(entries: DailyEntry[]): void {
-  localStorage.setItem(ENTRIES_KEY_V2, JSON.stringify(entries))
+  saveEntriesLocal(entries)
+  void importEntries(entries).catch(reportApiSyncError)
 }
 
 export function upsertEntry(entry: DailyEntry): DailyEntry[] {
   const list = loadEntries().filter((e) => e.id !== entry.id && e.date !== entry.date)
   list.push(entry)
   list.sort((a, b) => a.date.localeCompare(b.date))
-  saveEntries(list)
+  saveEntriesLocal(list)
+  void saveEntry(entry).catch(reportApiSyncError)
   return list
 }
 
 export function deleteEntryById(id: string): DailyEntry[] {
   const list = loadEntries().filter((e) => e.id !== id)
-  saveEntries(list)
+  saveEntriesLocal(list)
+  void deleteEntry(id).catch(reportApiSyncError)
   return list
 }
 
@@ -109,11 +125,18 @@ export function loadSettings(): AppSettings {
 
 /** Migra chaves antigas de settings (valorBilhete etc.) para novos campos quando possível */
 export function saveSettings(s: AppSettings): void {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s))
+  saveSettingsLocal(s)
+  void saveSettingsApi(s).catch(reportApiSyncError)
 }
 
 export function clearAllAppData(): void {
   localStorage.removeItem(ENTRIES_KEY_V2)
   localStorage.removeItem(ENTRIES_KEY_V1)
   localStorage.removeItem(SETTINGS_KEY)
+}
+
+export async function syncLocalStorageFromApi(): Promise<void> {
+  const [entries, settings] = await Promise.all([fetchEntries(), fetchSettings()])
+  saveEntriesLocal(entries)
+  saveSettingsLocal(settings)
 }
