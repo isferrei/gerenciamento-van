@@ -74,3 +74,48 @@ Depois redeploy a API.
 Nao publique arquivos `.env`.
 
 Como a senha antiga do MongoDB ja foi compartilhada durante a configuracao, troque a senha do usuario no MongoDB Atlas e atualize `MONGODB_URI` no Render e em `server/.env`.
+
+## 5. CI/CD pelo GitHub Actions
+
+O projeto tem um workflow em:
+
+```txt
+.github/workflows/deploy.yml
+```
+
+Em todo push na branch `main`, ele:
+
+```txt
+1. instala dependencias do frontend
+2. roda npm run build
+3. instala dependencias da API
+4. checa a sintaxe dos arquivos Node
+5. dispara deploy hooks, se estiverem configurados
+```
+
+Para publicar automaticamente via GitHub Actions, crie estes secrets no GitHub:
+
+```txt
+RENDER_DEPLOY_HOOK_URL
+NETLIFY_BUILD_HOOK_URL
+```
+
+No GitHub:
+
+```txt
+Repository > Settings > Secrets and variables > Actions > New repository secret
+```
+
+No Render, gere o deploy hook em:
+
+```txt
+Service > Settings > Deploy Hook
+```
+
+No Netlify, gere o build hook em:
+
+```txt
+Site configuration > Build & deploy > Build hooks
+```
+
+Se os hooks nao forem configurados, Netlify e Render ainda podem publicar automaticamente pela integracao direta com GitHub, mas o workflow ficara apenas como validacao de build.
