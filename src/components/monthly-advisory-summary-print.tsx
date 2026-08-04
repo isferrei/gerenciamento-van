@@ -61,7 +61,8 @@ export function MonthlyAdvisorySummaryPrint({ monthLabel, stats }: MonthlyAdviso
             valueBlue
           />
           <MetricRow label="Total Viagens" value={formatCount(stats.totalViagensGeral)} valueBlue />
-          <MetricRow label="Dias trabalhados" value={formatCount(stats.diasTrabalhados)} valueBlue />
+          <MetricRow label="Dias no mês" value={formatCount(stats.diasNoMes)} valueBlue />
+          <MetricRow label="Dias lançados" value={formatCount(stats.diasTrabalhados)} valueBlue />
           <MetricRow label="Lucro liquido Total" value={formatBrl(stats.lucroLiquidoTotal)} />
           <MetricRow label="Gasto com combustível" value={formatBrl(stats.gastoCombustivel)} />
           <tr>

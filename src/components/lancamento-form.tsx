@@ -133,14 +133,29 @@ export function LancamentoForm({
 
   function patch(partial: Partial<DailyEntry>) {
     const s = loadSettings()
+    const nextPartial = { ...partial }
+    if (isSundayIso(entry.date)) {
+      if (
+        Object.prototype.hasOwnProperty.call(partial, 'viagensEdson') &&
+        Number(partial.viagensEdson) > 0
+      ) {
+        nextPartial.domingoMotoristaAtivo = 'Edson'
+      }
+      if (
+        Object.prototype.hasOwnProperty.call(partial, 'viagensBispo') &&
+        Number(partial.viagensBispo) > 0
+      ) {
+        nextPartial.domingoMotoristaAtivo = 'Bispo'
+      }
+    }
     setOcrLowConfidence((prev) => {
       const next = { ...prev }
       for (const k of OCR_FORM_KEYS) {
-        if (Object.prototype.hasOwnProperty.call(partial, k)) delete next[k]
+        if (Object.prototype.hasOwnProperty.call(nextPartial, k)) delete next[k]
       }
       return next
     })
-    setEntry((prev) => recalcEntry({ ...prev, ...partial }, s))
+    setEntry((prev) => recalcEntry({ ...prev, ...nextPartial }, s))
   }
 
   function handleDateChange(iso: string) {

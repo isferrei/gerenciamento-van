@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { loadEntries, loadSettings } from '../lib/storage'
 import { computeMonthlyStats, filterEntriesByMonth } from '../lib/monthly-stats'
-import { currentYearMonth, formatMonthNamePt } from '../lib/dates'
+import { currentYearMonth, formatBrDate, formatMonthNamePt } from '../lib/dates'
 import { captureElementToPngBlob } from '../lib/capture-element-to-png'
 import { downloadBlobFile } from '../lib/download-blob'
 import { Field } from '../components/field'
@@ -24,7 +24,7 @@ export function ResumoPage() {
     const all = loadEntries()
     const settings = loadSettings()
     const inMonth = filterEntriesByMonth(all, month)
-    return computeMonthlyStats(inMonth, settings, all)
+    return computeMonthlyStats(inMonth, settings, all, month)
   }, [month, dataRevision])
 
   const monthLabel = useMemo(() => formatMonthNamePt(month), [month])
@@ -101,6 +101,13 @@ export function ResumoPage() {
       ) : null}
 
       <MonthKpiGrid stats={stats} />
+
+      {stats.diasSemLancamento.length > 0 ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          <span className="font-semibold">Dias sem lançamento neste mês:</span>{' '}
+          {stats.diasSemLancamento.map(formatBrDate).join(', ')}.
+        </div>
+      ) : null}
 
       <section className="space-y-2">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">

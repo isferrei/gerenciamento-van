@@ -8,7 +8,9 @@ export interface MonthlyStats {
   totalViagensEdson: number
   totalViagensBispo: number
   totalViagensGeral: number
+  diasNoMes: number
   diasTrabalhados: number
+  diasSemLancamento: string[]
   gastoCombustivel: number
   outrasDespesas: number
   salarioTotalEdson: number
@@ -29,9 +31,19 @@ export function computeMonthlyStats(
   entriesInMonth: DailyEntry[],
   settings: AppSettings,
   allEntries: DailyEntry[],
+  yearMonth?: string,
 ): MonthlyStats {
   const sorted = [...entriesInMonth].sort((a, b) => a.date.localeCompare(b.date))
   const kms = sorted.map((e) => e.km).filter((k) => k > 0)
+  const monthRef = yearMonth ?? sorted[0]?.date.slice(0, 7)
+  const diasNoMes = monthRef ? Number(monthBounds(monthRef).end.slice(-2)) : 0
+  const datesWithEntry = new Set(sorted.map((e) => e.date))
+  const diasSemLancamento =
+    monthRef ?
+      Array.from({ length: diasNoMes }, (_, i) => `${monthRef}-${String(i + 1).padStart(2, '0')}`).filter(
+        (date) => !datesWithEntry.has(date),
+      )
+    : []
 
   let totalKmPercorrido = 0
   if (kms.length >= 2) totalKmPercorrido = Math.max(0, kms[kms.length - 1]! - kms[0]!)
@@ -54,7 +66,9 @@ export function computeMonthlyStats(
     totalViagensEdson: sum(sorted, (e) => e.viagensEdson),
     totalViagensBispo: sum(sorted, (e) => e.viagensBispo),
     totalViagensGeral: sum(sorted, (e) => e.viagensEdson + e.viagensBispo),
+    diasNoMes,
     diasTrabalhados: sorted.length,
+    diasSemLancamento,
     gastoCombustivel: sum(sorted, (e) => e.combustivel),
     outrasDespesas: sum(sorted, (e) => e.outrasDespesas),
     salarioTotalEdson: sum(sorted, (e) => e.salarioEdson),

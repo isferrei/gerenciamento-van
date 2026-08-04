@@ -152,6 +152,12 @@ export function WeeklyDayCard(props: WeeklyDayCardProps) {
     } else if (editing.kind === 'int') {
       const n = editRaw === '' ? 0 : Math.max(0, Math.round(parseDecimal(editRaw)))
       partial = { [k]: n } as Partial<DailyEntry>
+      if (isSundayIso(dateIso) && n > 0 && k === 'viagensEdson') {
+        partial.domingoMotoristaAtivo = 'Edson'
+      }
+      if (isSundayIso(dateIso) && n > 0 && k === 'viagensBispo') {
+        partial.domingoMotoristaAtivo = 'Bispo'
+      }
     } else {
       const n = editRaw === '' ? 0 : Math.max(0, parseDecimal(editRaw))
       partial = { [k]: n } as Partial<DailyEntry>
