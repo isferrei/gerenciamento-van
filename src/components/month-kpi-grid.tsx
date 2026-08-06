@@ -99,7 +99,7 @@ export function MonthKpiGrid({ stats }: MonthKpiGridProps) {
           icon={IconTicket}
         />
         <SmallKpi
-          title="Dias lançados"
+          title="Dias trabalhados"
           value={`${stats.diasTrabalhados} de ${stats.diasNoMes} dias`}
           tone={toneSecondary}
           icon={IconCalendar}

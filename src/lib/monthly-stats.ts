@@ -10,7 +10,7 @@ export interface MonthlyStats {
   totalViagensGeral: number
   diasNoMes: number
   diasTrabalhados: number
-  diasSemLancamento: string[]
+  diasSemCartao: string[]
   gastoCombustivel: number
   outrasDespesas: number
   salarioTotalEdson: number
@@ -33,15 +33,16 @@ export function computeMonthlyStats(
   allEntries: DailyEntry[],
   yearMonth?: string,
 ): MonthlyStats {
-  const sorted = [...entriesInMonth].sort((a, b) => a.date.localeCompare(b.date))
+  const sortedAll = [...entriesInMonth].sort((a, b) => a.date.localeCompare(b.date))
+  const sorted = sortedAll.filter((e) => e.valeTransQtd > 0)
   const kms = sorted.map((e) => e.km).filter((k) => k > 0)
-  const monthRef = yearMonth ?? sorted[0]?.date.slice(0, 7)
+  const monthRef = yearMonth ?? sortedAll[0]?.date.slice(0, 7)
   const diasNoMes = monthRef ? Number(monthBounds(monthRef).end.slice(-2)) : 0
-  const datesWithEntry = new Set(sorted.map((e) => e.date))
-  const diasSemLancamento =
+  const datesWithCards = new Set(sorted.map((e) => e.date))
+  const diasSemCartao =
     monthRef ?
       Array.from({ length: diasNoMes }, (_, i) => `${monthRef}-${String(i + 1).padStart(2, '0')}`).filter(
-        (date) => !datesWithEntry.has(date),
+        (date) => !datesWithCards.has(date),
       )
     : []
 
@@ -68,7 +69,7 @@ export function computeMonthlyStats(
     totalViagensGeral: sum(sorted, (e) => e.viagensEdson + e.viagensBispo),
     diasNoMes,
     diasTrabalhados: sorted.length,
-    diasSemLancamento,
+    diasSemCartao,
     gastoCombustivel: sum(sorted, (e) => e.combustivel),
     outrasDespesas: sum(sorted, (e) => e.outrasDespesas),
     salarioTotalEdson: sum(sorted, (e) => e.salarioEdson),

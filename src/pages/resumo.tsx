@@ -102,10 +102,10 @@ export function ResumoPage() {
 
       <MonthKpiGrid stats={stats} />
 
-      {stats.diasSemLancamento.length > 0 ? (
+      {stats.diasSemCartao.length > 0 ? (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-          <span className="font-semibold">Dias sem lançamento neste mês:</span>{' '}
-          {stats.diasSemLancamento.map(formatBrDate).join(', ')}.
+          <span className="font-semibold">Dias sem cartões neste mês:</span>{' '}
+          {stats.diasSemCartao.map(formatBrDate).join(', ')}.
         </div>
       ) : null}
 
